@@ -1,6 +1,6 @@
-import { VisionMissionSection } from '@/components/sections/VisionMissionSection';
-import { HistorySection } from '@/components/sections/HistorySection';
-import { ValuesSection } from '@/components/sections/ValuesSection';
+import { VisionMissionSection } from "@/components/sections/VisionMissionSection";
+import { HistorySection } from "@/components/sections/HistorySection";
+import { ValuesSection } from "@/components/sections/ValuesSection";
 
 export default function Kurumsal() {
   return (
@@ -12,14 +12,14 @@ export default function Kurumsal() {
               EKKA GAYRİMENKUL
             </h1>
             <p className="text-xl md:text-2xl text-gray-200 leading-relaxed mb-8">
-              Gayrimenkul ve enerji sektörlerinde öncü bir güç olarak, 
-              kuruluşumuzdan bu yana mükemmellik, yenilik ve sürdürülebilir büyümeye odaklanıyoruz.
+              Gayrimenkul ve enerji sektörlerinde öncü bir güç olarak,
+              kuruluşumuzdan bu yana mükemmellik, yenilik ve sürdürülebilir
+              büyümeye odaklanıyoruz.
             </p>
             <div className="w-24 h-1 bg-gradient-to-r from-yellow-400 to-yellow-600 mx-auto rounded-full"></div>
           </div>
         </div>
       </div>
-      <HistorySection />
       <VisionMissionSection />
       <ValuesSection />
     </div>
