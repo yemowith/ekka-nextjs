@@ -80,3 +80,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.f-header svg {
+  filter: brightness(0.75);
+}

@@ -1,18 +1,21 @@
-'use client';
+"use client";
 
-import { useState, useEffect, useRef } from 'react';
-import { Send } from 'lucide-react';
+import { useState, useEffect, useRef } from "react";
+import { Send } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 
 export function ContactForm() {
   const [isVisible, setIsVisible] = useState(false);
   const [formData, setFormData] = useState({
-    name: '',
-    email: '',
-    phone: '',
-    subject: '',
-    message: ''
+    name: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
   });
+  const [loading, setLoading] = useState(false);
   const sectionRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   useEffect(() => {
     const observer = new IntersectionObserver(
@@ -31,32 +34,116 @@ export function ContactForm() {
     return () => observer.disconnect();
   }, []);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form gönderme işlemi burada yapılacak
-    console.log('Form data:', formData);
-    alert('Mesajınız başarıyla gönderildi! En kısa sürede size dönüş yapacağız.');
-    setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+
+    // Client-side validation
+    if (!formData.name.trim()) {
+      toast({ title: "Hata", description: "Ad Soyad zorunludur." });
+      return;
+    }
+    if (!formData.email.trim()) {
+      toast({ title: "Hata", description: "E-posta zorunludur." });
+      return;
+    }
+    // Simple email regex
+    if (!/^\S+@\S+\.\S+$/.test(formData.email)) {
+      toast({
+        title: "Hata",
+        description: "Geçerli bir e-posta adresi girin.",
+      });
+      return;
+    }
+    if (!formData.subject.trim()) {
+      toast({ title: "Hata", description: "Konu seçiniz." });
+      return;
+    }
+    if (!formData.message.trim()) {
+      toast({ title: "Hata", description: "Mesaj alanı zorunludur." });
+      return;
+    }
+
+    setLoading(true);
+    let timeoutId: NodeJS.Timeout | null = null;
+    try {
+      const controller = new AbortController();
+      timeoutId = setTimeout(() => {
+        controller.abort();
+      }, 10000); // 10 seconds
+
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+        signal: controller.signal,
+      });
+      clearTimeout(timeoutId);
+      const data = await res.json();
+      if (data.success) {
+        toast({
+          title: "Mesajınız gönderildi!",
+          description: "En kısa sürede size dönüş yapacağız.",
+        });
+        setFormData({
+          name: "",
+          email: "",
+          phone: "",
+          subject: "",
+          message: "",
+        });
+      } else {
+        toast({
+          title: "Hata",
+          description:
+            data.error || "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+        });
+      }
+    } catch (error: any) {
+      if (error.name === "AbortError") {
+        toast({
+          title: "Zaman aşımı",
+          description: "Sunucu yanıt vermiyor. Lütfen tekrar deneyin.",
+        });
+      } else {
+        toast({
+          title: "Hata",
+          description: "Mesaj gönderilemedi. Lütfen tekrar deneyin.",
+        });
+      }
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   return (
     <div ref={sectionRef}>
-      <div className={`transition-all duration-1000 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
+      <div
+        className={`transition-all duration-1000 ${
+          isVisible ? "opacity-100 translate-y-0" : "opacity-0 translate-y-8"
+        }`}
+      >
         <h2 className="text-3xl font-playfair font-bold text-gray-900 mb-8">
           Mesaj Gönderin
         </h2>
-        
+
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="name" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="name"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Ad Soyad *
               </label>
               <input
@@ -70,9 +157,12 @@ export function ContactForm() {
                 placeholder="Adınızı ve soyadınızı girin"
               />
             </div>
-            
+
             <div>
-              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 E-posta *
               </label>
               <input
@@ -87,10 +177,13 @@ export function ContactForm() {
               />
             </div>
           </div>
-          
+
           <div className="grid md:grid-cols-2 gap-6">
             <div>
-              <label htmlFor="phone" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="phone"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Telefon
               </label>
               <input
@@ -103,9 +196,12 @@ export function ContactForm() {
                 placeholder="Telefon numaranızı girin"
               />
             </div>
-            
+
             <div>
-              <label htmlFor="subject" className="block text-sm font-semibold text-gray-700 mb-2">
+              <label
+                htmlFor="subject"
+                className="block text-sm font-semibold text-gray-700 mb-2"
+              >
                 Konu *
               </label>
               <select
@@ -125,9 +221,12 @@ export function ContactForm() {
               </select>
             </div>
           </div>
-          
+
           <div>
-            <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
+            <label
+              htmlFor="message"
+              className="block text-sm font-semibold text-gray-700 mb-2"
+            >
               Mesaj *
             </label>
             <textarea
@@ -141,17 +240,47 @@ export function ContactForm() {
               placeholder="Mesajınızı detaylı olarak yazın..."
             />
           </div>
-          
+
           <button
             type="submit"
-            className="group w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 px-8 py-4 rounded-lg font-semibold hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2"
+            className="group w-full bg-gradient-to-r from-yellow-400 to-yellow-600 text-gray-900 px-8 py-4 rounded-lg font-semibold hover:shadow-2xl transform hover:scale-105 transition-all duration-300 flex items-center justify-center space-x-2 disabled:opacity-60 disabled:cursor-not-allowed"
+            disabled={loading}
           >
-            <span>Mesajı Gönder</span>
-            <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            {loading ? (
+              <>
+                <span>Gönderiliyor...</span>
+                <svg
+                  className="animate-spin ml-2 h-5 w-5 text-gray-900"
+                  xmlns="http://www.w3.org/2000/svg"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <circle
+                    className="opacity-25"
+                    cx="12"
+                    cy="12"
+                    r="10"
+                    stroke="currentColor"
+                    strokeWidth="4"
+                  ></circle>
+                  <path
+                    className="opacity-75"
+                    fill="currentColor"
+                    d="M4 12a8 8 0 018-8v8z"
+                  ></path>
+                </svg>
+              </>
+            ) : (
+              <>
+                <span>Mesajı Gönder</span>
+                <Send className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+              </>
+            )}
           </button>
-          
+
           <p className="text-sm text-gray-500 text-center">
-            * işaretli alanlar zorunludur. Bilgileriniz güvenli bir şekilde saklanır.
+            * işaretli alanlar zorunludur. Bilgileriniz güvenli bir şekilde
+            saklanır.
           </p>
         </form>
       </div>

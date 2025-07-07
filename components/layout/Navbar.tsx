@@ -30,8 +30,10 @@ export function Navbar() {
   return (
     <nav
       className={cn(
-        "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
-        isScrolled ? "bg-white/95 backdrop-blur-md shadow-lg" : "bg-transparent"
+        "fixed top-0 left-0 right-0 z-50 transition-all duration-500 ",
+        isScrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg f-header"
+          : "bg-transparent"
       )}
     >
       <div className="container mx-auto px-4">
@@ -39,7 +41,7 @@ export function Navbar() {
           <Link href="/" className="flex items-center space-x-3 group">
             <div className=" p-2.5 ">
               <Logo
-                className="h-10 w-auto"
+                className="h-10 w-auto slogo"
                 aria-label="EKKA GAYRİMENKUL Logo"
               />
             </div>

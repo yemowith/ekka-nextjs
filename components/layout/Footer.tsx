@@ -80,12 +80,8 @@ export function Footer() {
             <h3 className="font-semibold text-lg mb-4">İletişim</h3>
             <ul className="space-y-3">
               <li className="flex items-center space-x-3 text-gray-300">
-                <Phone className="h-4 w-4 text-yellow-400" />
-                <span>+90 212 XXX XX XX</span>
-              </li>
-              <li className="flex items-center space-x-3 text-gray-300">
                 <Mail className="h-4 w-4 text-yellow-400" />
-                <span>info@ekkagayrimenkul.com</span>
+                <span>info@ekkaholding.com.tr</span>
               </li>
               <li className="flex items-start space-x-3 text-gray-300">
                 <MapPin className="h-4 w-4 text-yellow-400 mt-1" />
